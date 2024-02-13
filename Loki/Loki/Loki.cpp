@@ -1,6 +1,7 @@
 #include "framework.h"
 #include "Loki.h"
 
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -39,6 +40,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
+    LokiCore loki;
+    int a = loki.init();
+
+
     // Main message loop:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
@@ -48,6 +53,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
+
+   
 
     return (int) msg.wParam;
 }
@@ -79,16 +86,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPED,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
       return FALSE;
    }
-
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
 
    return TRUE;
 }

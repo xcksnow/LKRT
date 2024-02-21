@@ -1,0 +1,1 @@
+S:\MalwareDeveloped\LokiRAT\Loki\Loki\x64\Release\Loki.vcxproj.CopyComplete

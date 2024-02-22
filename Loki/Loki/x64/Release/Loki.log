@@ -127,11 +127,12 @@ C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\ntstatus.h(14
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(2612,1): message : see previous definition of 'STATUS_SXS_EARLY_DEACTIVATION'
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\ntstatus.h(14985,1): warning C4005: 'STATUS_SXS_INVALID_DEACTIVATION': macro redefinition
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(2613,1): message : see previous definition of 'STATUS_SXS_INVALID_DEACTIVATION'
+S:\MalwareDeveloped\LokiRAT\Loki\Loki\FileHiderADS.h(41,70): warning C4267: 'argument': conversion from 'size_t' to 'DWORD', possible loss of data
   Generating code
-  Previous IPDB not found, fall back to full compilation.
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
 S:\MalwareDeveloped\LokiRAT\Loki\Loki\httpRequest.h(99): warning C4715: 'httpRequest::httpNewAction': not all control paths return a value
 S:\MalwareDeveloped\LokiRAT\Loki\Loki\httpRequest.h(142): warning C4715: 'httpRequest::httpGetParamsAction': not all control paths return a value
-  All 303 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 310 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
   Loki.vcxproj -> S:\MalwareDeveloped\LokiRAT\Loki\x64\Release\Loki.exe
   'pwsh.exe' is not recognized as an internal or external command,

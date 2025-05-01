@@ -2,6 +2,10 @@
 #include <Windows.h>
 #include <TlHelp32.h>
 #include <string>
+#include <filesystem>
+#include <fstream>
+
+namespace fs = std::filesystem;
 
 using namespace std;
 
@@ -9,6 +13,13 @@ class Utils{
 public:
 
     enum ProtectionType { R = 1, W = 2, X = 4, RW = 3, RX = 5, WX = 6, RWX = 7 };
+
+    string findFilePath(const string& fileName) {
+		// use GetFullPathNameA
+        char buffer[MAX_PATH];
+        GetFullPathNameA(fileName.c_str(), MAX_PATH, buffer, nullptr);
+        return string(buffer);
+	}
 
 	int getPIDbyProcName(const string& procName) {
 		int pid = 0;
@@ -89,6 +100,44 @@ public:
         return allocatedMemory;
     }
 
+    //static std::wstring findFileDirectory(const wchar_t* filename) {
+    //    wchar_t buffer[MAX_PATH];
+    //    GetModuleFileNameW(nullptr, buffer, MAX_PATH); // Obtener la ruta del ejecutable
+    //    wchar_t* lastSlash = wcsrchr(buffer, L'\\');
+
+    //    if (lastSlash != nullptr) {
+    //        *lastSlash = L'\0'; // Eliminar el nombre del ejecutable para obtener solo el directorio
+    //        std::wstring directory(buffer);
+    //        directory.append(L"\\");
+    //        directory.append(filename); // Agregar el nombre del archivo al directorio
+    //        return directory;
+    //    }
+    //    else {
+    //        return L"";
+    //    }
+    //}
+
+
+    static std::wstring findFileDirectoryW(const wchar_t* filename) {
+        wchar_t buffer[MAX_PATH];
+        GetFullPathNameW(filename, MAX_PATH, buffer, nullptr); 
+        wchar_t* lastSlash = wcsrchr(buffer, L'\\');
+
+        if (lastSlash != nullptr) {
+            *lastSlash = L'\0';
+            return std::wstring(buffer);
+        }
+        else {
+            return L"";
+        }
+    }
+
+    std::string findFileDirectory(const std::string& nombreArchivo) {
+        fs::path rutaAbsoluta = fs::absolute(nombreArchivo);
+        return rutaAbsoluta.string();
+    }
+
+
     char* MyOwnVirtualAllocEx(DWORD processId, int size, ProtectionType protectionType) {
         enum ProtectionType { R = 1, W = 2, X = 4, RW = 3, RX = 5, WX = 6, RWX = 7 };
         char dll[] = { 'w','i','n','m','m','.','d','l','l','\0' };
@@ -158,6 +207,16 @@ public:
     static LPCWSTR convertStringToLPCWSTR(const string& s) {
 		wstring wideString(s.begin(), s.end());
 		return wideString.c_str();
+	}
+
+    static LPWSTR convertStringToLPWSTR(const string& s) {
+        wstring wideString(s.begin(), s.end());
+        return const_cast<LPWSTR>(wideString.c_str());
+    }
+
+    static bool fileExists(const string& name) {
+		ifstream f(name.c_str());
+		return f.good();
 	}
 
 };

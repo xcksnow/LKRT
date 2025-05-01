@@ -1,0 +1,44 @@
+<div class="header border">
+    <div class="header-content d-flex flex-column mt-2 mb-2">
+        <b (click)="homePage()" class="text-white">LokiRAT</b>
+    </div>
+</div>
+
+
+
+<div class="">
+    <div class="d-flex justify-content-end mt-2 mr-3 mb-2">
+        <input style="width: 15%; margin-right: 20px;" type="text" class="form-control" [(ngModel)]="processFilter" (input)="changeFilter()" placeholder="Filter">
+    </div>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th scope="col" class="text-center">Process ID</th>
+                <th scope="col" class="text-center">Process Name</th>
+                <th scope="col" class="text-center">Username</th>
+                <th scope="col" class="text-center">Parent Process ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let process of processesToShow | paginate: { itemsPerPage: pageSize, currentPage: currentPageR }">
+                <th scope="row" class="text-center">{{ process.PID }}</th>
+                <td class="text-center"> {{ process.Name }}</td>
+                <td class="text-center"> {{ process.Username }}</td>
+                <td class="text-center"> {{ process.ParentPID }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center mt-3">
+        <pagination-controls (pageChange)="currentPageR = $event"></pagination-controls>
+
+    </div>
+</div>
+
+
+<div class="overlay" *ngIf="isLoading"></div>
+<!-- Loading spinner -->
+<div class="spinner-container" *ngIf="isLoading">
+  <div class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>

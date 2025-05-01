@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\b\\Desktop\\LokiServer\\LokiServer\\LokiServer.csproj": {}
+    "S:\\LokiRAT\\LokiServer\\LokiServer\\LokiServer.csproj": {}
   },
   "projects": {
-    "C:\\Users\\b\\Desktop\\LokiServer\\LokiServer\\LokiServer.csproj": {
+    "S:\\LokiRAT\\LokiServer\\LokiServer\\LokiServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\b\\Desktop\\LokiServer\\LokiServer\\LokiServer.csproj",
+        "projectUniqueName": "S:\\LokiRAT\\LokiServer\\LokiServer\\LokiServer.csproj",
         "projectName": "LokiServer",
-        "projectPath": "C:\\Users\\b\\Desktop\\LokiServer\\LokiServer\\LokiServer.csproj",
+        "projectPath": "S:\\LokiRAT\\LokiServer\\LokiServer\\LokiServer.csproj",
         "packagesPath": "C:\\Users\\b\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\b\\Desktop\\LokiServer\\LokiServer\\obj\\",
+        "outputPath": "S:\\LokiRAT\\LokiServer\\LokiServer\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\b\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -40,9 +40,17 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "Microsoft.AspNet.Cors": {
+              "target": "Package",
+              "version": "[5.3.0, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[7.0.13, )"
+            },
+            "Mono.Cecil": {
+              "target": "Package",
+              "version": "[0.11.5, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",

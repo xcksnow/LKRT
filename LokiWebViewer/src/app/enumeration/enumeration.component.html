@@ -1,0 +1,45 @@
+<div class="popup">
+  <div class="popup-content">
+    <div class="popup-header">
+      <h2 class="text-center mb-4">Victim Information</h2>
+    </div>
+    <div class="popup-body">
+      <div class="mb-3">
+        <strong>PC Name: </strong> <span class="font-weight-bold">{{ pcName }}</span>
+      </div>
+      <div class="mb-3">
+        <strong>Operating System:</strong> {{ osName }}
+      </div>
+      <div class="mb-3">
+        <strong>Architecture:</strong> {{ osArchitecture }}
+      </div>
+      <div class="mb-3">
+        <strong>OS Version:</strong> {{ osVersion }}
+      </div>
+      <div class="mb-3">
+        <strong>RAM:</strong> {{ ram }}
+      </div>
+      <div class="mb-3">
+        <strong>CPU Cores:</strong> {{ cpuCores }}
+      </div>
+      <div class="mb-3">
+        <strong>MAC Address:</strong> {{ mac }}
+      </div>
+      <div class="mb-3">
+        <strong>Users:</strong>
+        <ul class="list-unstyled">
+          <li *ngFor="let user of users" class="mb-2">&#8226; {{ user }}</li>
+        </ul>
+      </div>
+      <div class="mb-3">
+        <strong>Disk Size:</strong> {{ diskSize }}
+      </div>
+      <div class="mb-3">
+        <strong>Disk Free:</strong> {{ diskFree }}
+      </div>
+      <div class="d-flex justify-content-center mt-4">
+        <button class="btn btn-danger" (click)="closePopup()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

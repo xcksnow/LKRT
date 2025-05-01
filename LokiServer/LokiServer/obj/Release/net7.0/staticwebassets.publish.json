@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "W+lUmswR2F3mtjudZUsoE+sG+KSwYB6xwhpDAaoF6dQ=",
+  "Source": "LokiServer",
+  "BasePath": "_content/LokiServer",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

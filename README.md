@@ -20,61 +20,61 @@ The purpose of this project is to understand how real-world RATs function for bo
 
 - **ETW Patcher** – Hooks and disables ETW logging at runtime.
 
-**No-New Thread Execution** – Executes shellcode without creating new threads.
+- **No-New Thread Execution** – Executes shellcode without creating new threads.
 
-**Own VirtualAlloc (Module Stomping)** – Executes shellcode within legitimate module memory.
+- **Own VirtualAlloc (Module Stomping)** – Executes shellcode within legitimate module memory.
 
 ### Persistence & Privilege Escalation
 
-**Execute EXE As Admin** – Uses UAC bypass to escalate privileges.
+- **Execute EXE As Admin** – Uses UAC bypass to escalate privileges.
 
-**Task Creator** – Creates scheduled tasks for persistence.
+- **Task Creator** – Creates scheduled tasks for persistence.
 
 **Privilege Escalation to SYSTEM** – Token stealing via SYSTEM process handles.**
 
-Information Gathering**
+- **Information Gathering**
 
-**List Processes** – Enumerates running processes.
+- **List Processes** – Enumerates running processes.
 
-**Enumeration** – Gathers OS, disk, registry, and network info.
+- **Enumeration** – Gathers OS, disk, registry, and network info.
 
-**Security Detector** – Checks for antivirus and monitoring tools.
+- **Security Detector** – Checks for antivirus and monitoring tools.
 
-**Mapping Free Handles in Memory** – Reuses handles from trusted processes to evade detection.
+- **Mapping Free Handles in Memory** – Reuses handles from trusted processes to evade detection.
 
 ### Rootkit
 
-**Userland Rootkit** – Intercepts system API calls.
+- **Userland Rootkit** – Intercepts system API calls.
 
-**File Hider** – Hides files and directories.
+- **File Hider** – Hides files and directories.
 
-**File Unhider** – Restores hidden files.
+- **File Unhider** – Restores hidden files.
 
-**Process Hider** – Conceals malicious processes.
+- **Process Hider** – Conceals malicious processes.
 
-**Registry Hider** - Hide Registry keys and values
+- **Registry Hider** - Hide Registry keys and values
 
 ### File Operations
 
-**File Upload** – Sends files to C2 using HTTP fragmentation.
+- **File Upload** – Sends files to C2 using HTTP fragmentation.
 
-**File Download** – Retrieves files from C2.
+- **File Download** – Retrieves files from C2.
 
-**File Explorer** – Browses file system remotely.
+- **File Explorer** – Browses file system remotely.
 
 ### Keylogging
 
-**Keylogger** – Captures and exfiltrates keystrokes.
+- **Keylogger** – Captures and exfiltrates keystrokes.
 
 ### RDP & Credential Access
 
-**RDP Stealer** – Extracts saved RDP credentials and session info.
+- **RDP Stealer** – Extracts saved RDP credentials and session info.
 
 ### ETW & Memory
 
-**ETW Patcher** – Neutralizes ETW logging.
+- **ETW Patcher** – Neutralizes ETW logging.
 
-**Mapping Free Handles in Memory** – Leverages open handles from trusted processes.
+- **Mapping Free Handles in Memory** – Leverages open handles from trusted processes.
 
 ## ⚠️ Legal & Ethical Disclaimer
 

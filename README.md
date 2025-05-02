@@ -2,9 +2,9 @@
 
 ![image](https://github.com/S12cybersecurity/LokiRAT/assets/79543461/39b518c0-8f8e-49d2-8552-d77d5cb54f62)
 
-This project implements a **Remote Access Trojan (RAT)** developed from scratch [Source context across videos]. It is designed to explore and demonstrate advanced techniques used in malware development [Source context across videos]. This is not a basic tool but an implementation focusing on key functionalities that make these tools powerful [Source context across videos].
+This project implements a **Remote Access Trojan (RAT)** developed from scratch. It is designed to explore and demonstrate advanced techniques used in malware development . This is not a basic tool but an implementation focusing on key functionalities that make these tools powerful.
 
-The purpose of this project is to understand how real-world RATs function for both **offensive security** (pentesting) and **defensive security** (malware analysis, threat hunting, detection engineering) [Source context across videos]. By understanding their construction, you can improve your ability to defend against them [Source context across videos].
+The purpose of this project is to understand how real-world RATs function for both **offensive security** (pentesting) and **defensive security** (malware analysis, threat hunting, detection engineering). By understanding their construction, you can improve your ability to defend against them.
 
 ## 🛠️ Features
 

@@ -76,6 +76,39 @@ The purpose of this project is to understand how real-world RATs function for bo
 
 - **Mapping Free Handles in Memory** – Leverages open handles from trusted processes.
 
+## 💻 Technologies
+
+LokiRAT is split into three main components, each using a specific technology stack suited to its role:
+### 🔹 Loki (C++ Agent / Client)
+
+- **Language:** C++
+
+- **Platform:** Windows
+
+- **Purpose:** Compiled malware payload executed on the victim's system.
+
+- **Highlights:** Native Windows API usage, stealth techniques, memory manipulation, anti-analysis features.
+
+### 🔸 LokiServer (C2 Server + API)
+
+- **Language:** C# (.NET)
+
+- **Framework:** ASP.NET Core
+
+- **Purpose:** Acts as the Command and Control (C2) server and provides REST API endpoints for the frontend.
+
+- **Highlights:** Token-based security, agent registration, real-time command relay.
+
+### 🔺 LokiWebViewer (Attacker’s Web Dashboard)
+
+- **Language:** TypeScript
+
+- **Framework:** Angular
+
+- **Purpose:** Web-based frontend for attackers to manage infected agents through the C2 API.
+
+- **Highlights:** Clean UI for remote access, data display, and command execution on victims.
+
 ## ⚠️ Legal & Ethical Disclaimer
 
 This project is for educational purposes only. All code and research are provided to support learning, detection engineering, and ethical red teaming. Do not use this project for unauthorized access or activity against systems you do not own or have permission to test.

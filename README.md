@@ -6,6 +6,25 @@ This project implements a **Remote Access Trojan (RAT)** developed from scratch.
 
 The purpose of this project is to understand how real-world RATs function for both **offensive security** (pentesting) and **defensive security** (malware analysis, threat hunting, detection engineering). By understanding their construction, you can improve your ability to defend against them.
 
+## 📘 Learn with the Course
+
+Each feature implemented in LokiRAT, along with the full development process of a custom Remote Access Trojan, is explained step by step in the course:
+🎓 Building a Custom Remote Access Trojan (RAT)
+
+In this course, you'll learn:
+
+- How to architect and build your own RAT from scratch
+
+- Stealth and evasion techniques used by advanced malware
+
+- How to build a full Command & Control infrastructure
+
+- Windows internals, API hooking, and rootkit development
+
+- How to implement reliable communication between client and server (C++ ↔ C2)
+
+⚠️ The course is focused on malware development. While the repository includes a web dashboard (LokiWebViewer) built with Angular, web development fundamentals are not covered, as this is part of a Malware Development Academy. The web interface is provided for completeness, not as a teaching topic.
+
 ## 🛠️ Features
 
 ### Anti-Detection & Evasion

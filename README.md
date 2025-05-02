@@ -8,7 +8,7 @@ The purpose of this project is to understand how real-world RATs function for bo
 
 ## 🛠️ Features
 
-- **Anti-Detection & Evasion**
+### Anti-Detection & Evasion
 
 - **TimeStomping** – Alters file timestamps to mimic legitimate binaries.
 
@@ -22,65 +22,67 @@ The purpose of this project is to understand how real-world RATs function for bo
 
 **No-New Thread Execution** – Executes shellcode without creating new threads.
 
-Own VirtualAlloc (Module Stomping) – Executes shellcode within legitimate module memory.
+**Own VirtualAlloc (Module Stomping)** – Executes shellcode within legitimate module memory.
 
-Persistence & Privilege Escalation
+### Persistence & Privilege Escalation
 
-Execute EXE As Admin – Uses UAC bypass to escalate privileges.
+**Execute EXE As Admin** – Uses UAC bypass to escalate privileges.
 
-Task Creator – Creates scheduled tasks for persistence.
+**Task Creator** – Creates scheduled tasks for persistence.
 
-Privilege Escalation to SYSTEM – Token stealing via SYSTEM process handles.
+**Privilege Escalation to SYSTEM** – Token stealing via SYSTEM process handles.**
 
-Information Gathering
+Information Gathering**
 
-List Processes – Enumerates running processes.
+**List Processes** – Enumerates running processes.
 
-Enumeration – Gathers OS, disk, registry, and network info.
+**Enumeration** – Gathers OS, disk, registry, and network info.
 
-Security Detector – Checks for antivirus and monitoring tools.
+**Security Detector** – Checks for antivirus and monitoring tools.
 
-Mapping Free Handles in Memory – Reuses handles from trusted processes to evade detection.
+**Mapping Free Handles in Memory** – Reuses handles from trusted processes to evade detection.
 
-Rootkit
+### Rootkit
 
-Userland Rootkit – Intercepts system API calls.
+**Userland Rootkit** – Intercepts system API calls.
 
-File Hider – Hides files and directories.
+**File Hider** – Hides files and directories.
 
-File Unhider – Restores hidden files.
+**File Unhider** – Restores hidden files.
 
-Process Hider – Conceals malicious processes.
+**Process Hider** – Conceals malicious processes.
 
-File Operations
+**Registry Hider** - Hide Registry keys and values
 
-File Upload – Sends files to C2 using HTTP fragmentation.
+### File Operations
 
-File Download – Retrieves files from C2.
+**File Upload** – Sends files to C2 using HTTP fragmentation.
 
-File Explorer (POC) – Browses file system remotely.
+**File Download** – Retrieves files from C2.
 
-Keylogging
+**File Explorer** – Browses file system remotely.
 
-Keylogger – Captures and exfiltrates keystrokes.
+### Keylogging
 
-RDP & Credential Access
+**Keylogger** – Captures and exfiltrates keystrokes.
 
-RDP Stealer – Extracts saved RDP credentials and session info.
+### RDP & Credential Access
 
-ETW & Memory
+**RDP Stealer** – Extracts saved RDP credentials and session info.
 
-ETW Patcher – Neutralizes ETW logging.
+### ETW & Memory
 
-Mapping Free Handles in Memory – Leverages open handles from trusted processes.
+**ETW Patcher** – Neutralizes ETW logging.
 
-⚠️ Legal & Ethical Disclaimer
+**Mapping Free Handles in Memory** – Leverages open handles from trusted processes.
+
+## ⚠️ Legal & Ethical Disclaimer
 
 This project is for educational purposes only. All code and research are provided to support learning, detection engineering, and ethical red teaming. Do not use this project for unauthorized access or activity against systems you do not own or have permission to test.
 
 Always follow local laws and industry best practices.
 
-🧩 Contributions
+## 🧩 Contributions
 
 Pull requests are welcome for new modules, improvements, or documentation enhancements.
 

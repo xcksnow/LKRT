@@ -6,36 +6,82 @@ This project implements a **Remote Access Trojan (RAT)** developed from scratch 
 
 The purpose of this project is to understand how real-world RATs function for both **offensive security** (pentesting) and **defensive security** (malware analysis, threat hunting, detection engineering) [Source context across videos]. By understanding their construction, you can improve your ability to defend against them [Source context across videos].
 
-## Features and Implemented Techniques
+## 🛠️ Features
 
-This RAT integrates various features and techniques for stealth and functionality, many of which are aimed at **evading detection** by security solutions like antivirus, EDR (Endpoint Detection and Response), and SIEM (Security Information and Event Management) [Source context across videos].
+- **Anti-Detection & Evasion**
 
-The functionalities and techniques covered in this project include:
+- **TimeStomping** – Alters file timestamps to mimic legitimate binaries.
 
-*   **Command Line Spoofing**: Allows modifying a process's visible command line to hide its true purpose, making it appear to run an innocent command (like `notepad.exe` opening a file) [1]. This tricks security tools like Windows Defender or antivirus [2]. It works by creating a process in a suspended state [3], accessing its Process Environment Block (PEB) [3] to locate the command line arguments [4]. The real command line is then overwritten in the `RTL_USER_PROCESS_PARAMETERS` structure with the spoofed command line [2, 4], and the length of the new command line is updated [2, 4]. This prevents security tools from seeing the real behavior [3].
-*   **Custom VirtualAlloc (Module Stomping)**: A technique to avoid using the heavily monitored `VirtualAlloc` function [5]. Instead, it uses memory allocated to a legitimate Windows DLL already loaded in the process (like `winmm.dll` or `msvcrt.dll`) [5]. The legitimate DLL is loaded into memory, and its memory space is used to execute custom code [5]. Security tools perceive this as a normal DLL, making it less suspicious than allocating new memory pages [5]. Permissions are set to executable [5]. This technique leaves less evidence [5].
-*   **ETW Patcher**: Modifies the `ETWEventWrite` function in `ntdll.dll`, which is part of Event Tracing for Windows (ETW) [6]. A `ret` (return) instruction is added at the beginning of the function to make it terminate immediately without executing its original logic [6]. This prevents security tools that rely on ETW to monitor key events from registering those activities, hindering threat detection [6]. It uses a generic remote hooking function (`remote_function_hooker`) to patch the target function [6].
-*   **System Enumeration**: Gathers detailed information about the victim machine, including computer name, operating system version, MAC address, storage information (total and free disk space), and user records [7, 8]. This information is crucial for the malware to understand the environment and adapt its actions [7], such as sending the correct payload for 32 or 64-bit architecture [7]. It uses functions like `GetDiskFreeSpaceEx` [7] and reads from the Windows registry [8]. The collected data is sent to the C2 server via HTTP [8].
-*   **File Exfiltration (HTTP Fragmentation)**: Allows stealing files from the victim machine stealthily [9]. Files are split into **small fragments** [9, 10], each fragment is **encrypted** (e.g., using XOR) [9, 10], and sent to the C2 server using **separate HTTP requests** [9-11]. This makes the traffic appear as standard web traffic and is difficult to detect by behavior analysis tools (like Sentinel One or Sophos) [9], as it avoids large file transfers and blends with HTTP traffic noise [9]. The server receives, decrypts, and reassembles the fragments [10]. It also supports **downloading files** from the server [10, 11]. Uses `libcurl` for HTTP communication [12].
-*   **File Explorer**: Enables navigating the victim's file system [13]. It lists files and directories for a specific path, indicating whether they are files or directories [13]. It also allows **reading the content** of specific files [13]. This feature interacts with a web server API and is displayed on a web panel [13].
-*   **File Hiding (Alternate Data Streams - ADS)**: Hides files using Alternate Data Streams in the Windows NTFS file system [14]. The content of the file to be hidden is copied to an ADS of a destination file (which appears normal), and the original file is then deleted [14]. ADS are not visible in standard file operations [14]. It also includes a function to **show hidden files** by retrieving content from the ADS [14]. This technique has a low detection rate [14]. Uses `CreateFile` and `DeleteFile` [14, 15].
-*   **HTTP Implementation**: Provides the network communication layer for the RAT, supporting both HTTP and HTTPS [16]. It **encrypts HTTP body values** (not keys) using XOR (with AES recommended for better security) [16, 17]. This prevents interception and reading of sensitive data and helps **evade packet sniffing and replication attacks** [17]. A **security token** is added to requests to ensure they are legitimate and prevent unauthorized replication [16]. This complicates analysis for malware analysts as they cannot easily replicate server interactions [17]. This implementation is used by features like the Keylogger for sending data [18].
-*   **Keylogger**: Captures keystrokes on the victim system [18]. Keystrokes are stored in a buffer [12]. When the buffer reaches a specified size, the captured data is sent to the server via **HTTP** using `libcurl` [12, 19]. It sets up a **Windows hook** using `SetWindowsHookEx` to capture keyboard events [12]. The hook function processes events and manages the buffer [12]. Server URL and victim ID are read from the Windows registry using an interprocess connection class [18]. The use of HTTP for exfiltration helps it remain undetected [18].
-*   **Mapping Free Memory Handles**: Locates and reuses handles (to files, registry keys, processes, tokens, etc.) that are already open by other processes, especially trusted ones like `explorer.exe` [20]. Instead of creating new handles (which are monitored by detection tools), it reuses existing ones, making its actions appear as if performed by the legitimate process [20]. This reduces noise and detection risk [20]. It enumerates system handles using `NtQuerySystemInformation` with the `SystemHandleInformation` flag [21, 22]. It iterates through the handles, duplicates the object (`DuplicateObject` implicitly), and checks its type using `NtQueryObject` [21, 23]. Useful for identifying handles to target processes or tokens with higher permissions [23].
-*   **Execution Without Creating New Threads**: Allows executing shellcode without creating new threads, avoiding noisy behavior monitored by antivirus and EDRs [24]. Implements three methods:
-    *   **Thread Hijacking**: Suspends an existing thread, modifies its RIP register to point to the shellcode, and then resumes the thread [24].
-    *   **API Callbacks**: Uses Windows API functions (like `EnumWindows`) that accept callback functions, passing the shellcode as the callback for execution [24].
-    *   **Pointer Method**: Executes shellcode directly by calling a pointer to the memory where the shellcode resides (which must be allocated and marked as executable) [24].
-*   **Privilege Escalation**: Essential for gaining higher control on an infected machine, escalating privileges from a regular user to administrator, or from administrator to the SYSTEM account [25]. This is crucial for accessing sensitive files or modifying system configurations [25]. Techniques are designed to be subtle to avoid triggering security products [25].
-    *   **User to Admin**: Modifies a specific registry key often used by trusted system executables [25]. Sets a desired command (the payload) within this registry key [25]. Executes the payload using `ShellExecuteEx` with the `runas` verb, which can trigger UAC bypass via processes like `fodhelper.exe` [25].
-    *   **Admin to SYSTEM**: Finds a process running with SYSTEM privileges (e.g., by enumerating processes and checking the user name) [25]. Opens a handle to the token of the SYSTEM process using `OpenProcessToken` [25]. Duplicates this token (implicitly mentioned) to create a usable token [25]. Launches a new process using `CreateProcessWithTokenW` with the duplicated SYSTEM token, causing the new process to run with SYSTEM privileges [25]. Leverages trusted system processes to bypass security checks [25].
-*   **Rootkit (Userland)**: A set of user-mode techniques to hide processes, files, or registry keys from users and system tools like Task Manager, File Explorer, or Registry Editor [26]. It operates at the same level as normal applications [26]. Hiding makes the malware invisible to security tools and users, helping it remain undetected [26]. It works by intercepting (hooking) Windows API calls that list system objects and filtering out the malicious items from the results before returning them [26].
-    *   **File Rootkit**: Hides files and directories from tools like File Explorer [26]. Injects a DLL into processes like `explorer.exe` [27]. Hooks API functions responsible for listing files and directories (`NtQueryDirectoryFile`, `NtQueryDirectoryFileEx`) [27]. Intercepts these calls, filters out the target files/directories from the list, and returns the modified list [27]. Uses `Detours` to apply the hooks [27]. Calls the original API after filtering to ensure normal system operation [27].
-    *   **Process Rootkit**: Hides processes from monitoring tools like Task Manager and Process Hacker [28]. Injects a DLL into the monitoring tool's process [28]. Hooks the `NtQuerySystemInformation` API function when it is called to list system processes (`SystemProcessInformation` flag) [28, 29]. Intercepts the list of processes and removes the information about the target process before the tool displays it [28, 29]. Uses `Detours` to apply the hooks [28].
-*   **Time Stomping**: Modifies the timestamps (creation, last access, last modification) of a target file to match those of a different, source file [30, 31]. This technique is used to make malicious files appear older or match the timestamps of legitimate system files, helping to hide the time they were actually created or modified [30]. It uses Windows API functions `NtQueryInformationFile` to get timestamps from the source and destination files and `NtSetInformationFile` to apply the source timestamps to the destination file [30-32]. Files are opened using `CreateFile` with the `OPEN_EXISTING` flag [30, 32]. It is a simple but useful evasion technique [31, 33].
-*   **Unhook NTDLL (Fresh Copy)**: A technique to bypass API hooks placed by security software in `ntdll.dll` [34]. It loads a **clean copy** of `ntdll.dll` directly from disk [34, 35]. It then replaces the hook `.text` section (where executable code resides) of the `ntdll.dll` loaded in the RAT's process memory with the corresponding clean section from the disk copy [35, 36]. This ensures that calls to critical NTDLL functions go to the original, unhooked code, bypassing security monitoring [36]. It involves opening the file (`CreateFile`), mapping it into memory (`CreateFileMapping`, `MapViewOfFile`) [35], locating the `.text` section, temporarily changing memory protections (`VirtualProtect`) [35], copying the clean code [36], and restoring protections [36].
-*   **Unhook Perun's Farts**: Considered a highly effective NTDLL unhooking technique [37]. It **creates a new process** (e.g., `cmd.exe`) in a **suspended state** [37, 38]. Since the process hasn't run, security software hasn't had a chance to inject hooks into its `ntdll.dll`, meaning it has a **clean copy** [37]. The RAT then reads the clean `ntdll.dll` (specifically its syscall table or `.text` section) from the suspended process's memory [38, 39]. It replaces the hook `.text` section in its *own* process's `ntdll.dll` with this clean copy [37, 39]. The suspended process can then be terminated [39, 40]. This allows the RAT to execute using a clean version of NTDLL, bypassing detection based on API hooking [37, 40]. It involves creating the suspended process (`CreateProcess`), reading its memory (`ReadProcessMemory`) [38], locating key code sections or syscall tables within the NTDLL copy [40], changing memory protection (`VirtualProtect`) [39], copying the clean code [39], and terminating the temporary process (`TerminateProcess`) [39, 40].
-*   **RDP Stealer**: Steals credentials from Remote Desktop Protocol (RDP) sessions [41]. It works by **injecting a DLL** into the legitimate `mstsc.exe` (the RDP client process) [41]. By injecting into a trusted process, the activity is less likely to be noticed [41]. The injected DLL hooks functions related to authentication or credential handling (specifically mentioning hooking the `PackAuthenticationBuffer` function) [41]. Captured credentials can be saved to a file or sent directly to the C2 server (as implemented in the Loki RAT version) [41]. Uses `Detours` to install and manage the API hooks [41].
+- **Unhook NTDLL** – Restores a clean copy of NTDLL to bypass userland hooks.
 
-This project offers a **robust foundation** for understanding advanced malware development and the evasion techniques used today [Source context across videos].
+- **Unhook NTDLL Hooks** – Replaces hooked NTDLL with a fresh copy to evade AV/EDR instrumentation.
 
+- **Command Line Spoofing** – Masks malicious processes with benign command lines.
+
+- **ETW Patcher** – Hooks and disables ETW logging at runtime.
+
+**No-New Thread Execution** – Executes shellcode without creating new threads.
+
+Own VirtualAlloc (Module Stomping) – Executes shellcode within legitimate module memory.
+
+Persistence & Privilege Escalation
+
+Execute EXE As Admin – Uses UAC bypass to escalate privileges.
+
+Task Creator – Creates scheduled tasks for persistence.
+
+Privilege Escalation to SYSTEM – Token stealing via SYSTEM process handles.
+
+Information Gathering
+
+List Processes – Enumerates running processes.
+
+Enumeration – Gathers OS, disk, registry, and network info.
+
+Security Detector – Checks for antivirus and monitoring tools.
+
+Mapping Free Handles in Memory – Reuses handles from trusted processes to evade detection.
+
+Rootkit
+
+Userland Rootkit – Intercepts system API calls.
+
+File Hider – Hides files and directories.
+
+File Unhider – Restores hidden files.
+
+Process Hider – Conceals malicious processes.
+
+File Operations
+
+File Upload – Sends files to C2 using HTTP fragmentation.
+
+File Download – Retrieves files from C2.
+
+File Explorer (POC) – Browses file system remotely.
+
+Keylogging
+
+Keylogger – Captures and exfiltrates keystrokes.
+
+RDP & Credential Access
+
+RDP Stealer – Extracts saved RDP credentials and session info.
+
+ETW & Memory
+
+ETW Patcher – Neutralizes ETW logging.
+
+Mapping Free Handles in Memory – Leverages open handles from trusted processes.
+
+⚠️ Legal & Ethical Disclaimer
+
+This project is for educational purposes only. All code and research are provided to support learning, detection engineering, and ethical red teaming. Do not use this project for unauthorized access or activity against systems you do not own or have permission to test.
+
+Always follow local laws and industry best practices.
+
+🧩 Contributions
+
+Pull requests are welcome for new modules, improvements, or documentation enhancements.
+
+If you're interested in contributing or collaborating, feel free to fork and open an issue.
